@@ -23,6 +23,11 @@ repositories {
 }
 
 dependencies {
+    val jjwtVersion= "0.12.6"
+    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
+
     implementation("org.springframework.boot:spring-boot-starter-grpc-server")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.apache.logging.log4j:log4j-api")
@@ -31,10 +36,14 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
     implementation("io.grpc:grpc-kotlin-stub")
     implementation("com.google.protobuf:protobuf-kotlin")
+    implementation("org.springframework.boot:spring-boot-starter-security")
 
     testImplementation("org.springframework.boot:spring-boot-starter-grpc-server-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 }
 
 protobuf {

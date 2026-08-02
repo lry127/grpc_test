@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "us.leaf3stones.grpc_test.proto";
+option java_outer_classname = "AuthProto";
+
+service AuthService {
+  rpc Login(LoginRequest) returns (LoginResponse) {};
+  rpc GetAccessToken(GetAccessTokenRequest) returns (GetAccessTokenResponse) {};
+  rpc RenewRefreshToken(RenewRefreshTokenRequest) returns (RenewRefreshTokenResponse) {};
+}
+
+message AccessToken {
+  string access_token = 1;
+  int64 expire_millis = 2;
+}
+
+message RefreshToken {
+  string refresh_token = 1;
+  int64 expire_millis = 2;
+}
+
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  AccessToken access_token = 1;
+  RefreshToken refresh_token = 2;
+}
+
+message GetAccessTokenRequest {
+  string refresh_token = 1;
+}
+
+message GetAccessTokenResponse {
+  AccessToken access_token = 1;
+}
+
+message RenewRefreshTokenRequest {
+  string old_refresh_token = 1;
+}
+
+message RenewRefreshTokenResponse {
+  AccessToken access_token = 1;
+  RefreshToken refresh_token = 2;
+}
+
