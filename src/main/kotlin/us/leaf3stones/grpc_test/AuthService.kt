@@ -6,19 +6,23 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.grpc.server.service.GrpcService
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import us.leaf3stones.grpc_test.proto.*
-import java.util.Date
-import java.util.UUID
+import java.util.*
 import javax.crypto.SecretKey
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 @GrpcService
-class AuthService(private val userDetailsService: UserDetailsService, private val passwordEncoder: PasswordEncoder) :
+class AuthService(
+    @Qualifier("cachedUserDetailsService")
+    private val cachedUserDetailsService: UserDetailsService,
+    private val passwordEncoder: PasswordEncoder
+) :
     AuthServiceGrpcKt.AuthServiceCoroutineImplBase() {
     companion object {
         private const val JWT_SECRET: String = "MySuperSecretKeyThatIsAtLeast32BytesLong"
@@ -69,7 +73,7 @@ class AuthService(private val userDetailsService: UserDetailsService, private va
         val invalidCredentialException =
             StatusRuntimeException(Status.UNAUTHENTICATED.withDescription("invalid username or password"))
         val user = try {
-            userDetailsService.loadUserByUsername(request.username)
+            cachedUserDetailsService.loadUserByUsername(request.username)
         } catch (_: UsernameNotFoundException) {
             throw invalidCredentialException
         }
@@ -104,7 +108,7 @@ class AuthService(private val userDetailsService: UserDetailsService, private va
         }
         val newAccessToken = generateAccessToken(
             username,
-            userDetailsService.loadUserByUsername(username).authorities.joinToString { "," })
+            cachedUserDetailsService.loadUserByUsername(username).authorities.joinToString { "," })
         return getAccessTokenResponse {
             this.accessToken = accessToken {
                 this.accessToken = newAccessToken.first
@@ -130,7 +134,7 @@ class AuthService(private val userDetailsService: UserDetailsService, private va
         val newRefreshToken = renewRefreshTokenInner(username)
         val newAccessToken = generateAccessToken(
             username,
-            userDetailsService.loadUserByUsername(username).authorities.joinToString { "," })
+            cachedUserDetailsService.loadUserByUsername(username).authorities.joinToString { "," })
 
         return renewRefreshTokenResponse {
             this.refreshToken = refreshToken {

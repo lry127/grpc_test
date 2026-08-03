@@ -10,11 +10,8 @@ import org.springframework.grpc.server.security.GrpcSecurity
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import us.leaf3stones.grpc_test.AuthService.Companion.signingKey
 
 @Configuration
@@ -39,21 +36,6 @@ class GrpcAppSecurity {
     @Bean
     fun passwordEncoder(): PasswordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder()
 
-    // 1. Keep your In-Memory Users for the Login phase
-    @Bean
-    fun userDetailsService(passwordEncoder: PasswordEncoder): UserDetailsService {
-        val userA = User.withUsername("userA")
-            .password(passwordEncoder.encode("password"))
-            .authorities("ROLE_USER")
-            .build()
-
-        val adminA = User.withUsername("adminA")
-            .password(passwordEncoder.encode("password"))
-            .authorities("ROLE_ADMIN", "ROLE_USER")
-            .build()
-
-        return InMemoryUserDetailsManager(userA, adminA)
-    }
 
     // 2. Configure gRPC Security for JWT Extraction
     @Bean
