@@ -7,7 +7,7 @@ services:
       - 'MYSQL_ROOT_PASSWORD=tyKZw4X0Rz5IRwvN'
       - 'MYSQL_USER=springuser'
     volumes:
-      - ./data/db/:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     ports:
       - '127.0.0.1:3306:3306'
 
@@ -27,4 +27,8 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
     volumes:
-      - ./data/redis_data:/data
+      - redis_data:/data
+
+volumes:
+  mysql_data:
+  redis_data:

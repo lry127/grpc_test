@@ -1,7 +1,6 @@
 package us.leaf3stones.grpc_test
 
-import org.springframework.boot.CommandLineRunner
-import org.springframework.context.annotation.Bean
+import org.springframework.beans.factory.InitializingBean
 import org.springframework.data.repository.ListCrudRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -12,13 +11,12 @@ interface SecUserRepository : ListCrudRepository<SecUser, Long> {
 }
 
 @Service
-class SecUserService(private val secUserRepository: SecUserRepository, private val passwordEncoder: PasswordEncoder) {
-    @Bean
-    fun createDefault() = CommandLineRunner {
+class SecUserService(private val secUserRepository: SecUserRepository, private val passwordEncoder: PasswordEncoder) :
+    InitializingBean {
+    override fun afterPropertiesSet() {
         if (secUserRepository.count() == 0L) {
-            val user = createNormalUser("userA", "up")
-            val admin = createAdmin("adminA", "ap")
-            secUserRepository.saveAll(listOf(user, admin))
+            createNormalUser("userA", "up")
+            createAdmin("adminA", "ap")
         }
     }
 
